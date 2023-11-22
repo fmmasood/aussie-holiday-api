@@ -7,6 +7,6 @@ spec:
   serviceAccountName: holiday-app
   containers:
   - name: holidayapi
-    image: 005352299461.dkr.ecr.eu-north-1.amazonaws.com/aussie-holiday-api:v1
+    image: <>.dkr.ecr.eu-north-1.amazonaws.com/<>:v1
     ports:
     - containerPort: 8080

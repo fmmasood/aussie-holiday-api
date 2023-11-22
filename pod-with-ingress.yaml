@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: holiday-api-service
+spec:
+  clusterIP: None
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: holiday-api
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: holiday-api--ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: public
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              serviceName: holiday-api-service
+              servicePort: 80
+            path: /*
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: holiday-api-deployment
+spec:
+  selector:
+    matchLabels:
+      app: holiday-api
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: holiday-api
+    spec:
+      containers:
+      - name: holiday-api
+        image: <>.dkr.ecr.eu-north-1.amazonaws.com/<>:v1
+        ports:
+         - containerPort: 8080
