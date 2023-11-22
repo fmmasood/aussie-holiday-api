@@ -5,28 +5,35 @@ metadata:
 spec:
   clusterIP: None
   ports:
-  - port: 80
+  - port: 8080
     protocol: TCP
     targetPort: 8080
   selector:
     app: holiday-api
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: holiday-api--ingress
+  name: holiday-api-ingress
   annotations:
-    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 8080}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/tags: Environment=ASX-EKS,Team=Group1
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/scheme: public
+    alb.ingress.kubernetes.io/healthcheck-path: "/holiday/20231225"
+    alb.ingress.kubernetes.io/healthcheck-port: "8080"
 spec:
+  ingressClassName: alb
   rules:
     - http:
         paths:
-          - backend:
-              serviceName: holiday-api-service
-              servicePort: 80
-            path: /*
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: holiday-api-service
+                port: 
+                  number: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,7 +43,7 @@ spec:
   selector:
     matchLabels:
       app: holiday-api
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
@@ -44,6 +51,7 @@ spec:
     spec:
       containers:
       - name: holiday-api
-        image: <>.dkr.ecr.eu-north-1.amazonaws.com/<>:v1
+        image: <>.dkr.ecr.us-west-2.amazonaws.com/<>:v1
         ports:
          - containerPort: 8080
+
